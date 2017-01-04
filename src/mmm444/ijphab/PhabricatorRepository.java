@@ -5,6 +5,7 @@ import com.intellij.tasks.CustomTaskState;
 import com.intellij.tasks.Task;
 import com.intellij.tasks.TaskRepositoryType;
 import com.intellij.tasks.impl.BaseRepository;
+import com.intellij.tasks.impl.RequestFailedException;
 import com.intellij.tasks.impl.httpclient.NewBaseRepositoryImpl;
 import com.intellij.tasks.impl.httpclient.TaskResponseUtil;
 import com.intellij.util.containers.ContainerUtil;
@@ -213,17 +214,17 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
   }
 
   private synchronized void initProjectCache() {
-    if (myProjectCache != null) {
+    if (myProjectCache != null || !isConfigured()) {
       return;
     }
-    myProjectCache = new HashMap<>();
     try {
       ProjectResponse res = apiCall("project.query", ProjectResponse.class);
+      myProjectCache = new HashMap<>();
       for (Project project : res.getResult().getData().values()) {
         myProjectCache.put(project.getPhid(), project);
       }
     }
-    catch (IOException ignored) {
+    catch (IOException | RequestFailedException ignored) {
     }
   }
 
