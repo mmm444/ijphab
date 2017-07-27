@@ -30,6 +30,8 @@ import java.util.regex.Pattern;
 
 @Tag("Phabricator")
 public class PhabricatorRepository extends NewBaseRepositoryImpl {
+  private static final int MIN_PHAB_QUERY_LEN = 3;
+
   private static final Pattern PROJECT_NAME_SEP = Pattern.compile("\\s*,\\s*");
 
   private final List<String> myIconProjectPhids = new ArrayList<>();
@@ -95,7 +97,11 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
       .add("limit", String.valueOf(limit))
       .add("offset", String.valueOf(offset));
     if (query != null) {
-      params.add("fullText", query);
+      if (query.length() >= MIN_PHAB_QUERY_LEN) {
+        params.add("fullText", query);
+      } else {
+        return new PhabricatorTask[]{};
+      }
     }
 
     QueryResponse res = apiCall("maniphest.query", QueryResponse.class, params);

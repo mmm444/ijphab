@@ -1,7 +1,7 @@
-<idea-plugin version="2">
+<idea-plugin>
   <id>com.github.mmm444.ijphab</id>
   <name>Phabricator Tasks Provider</name>
-  <version>0.1</version>
+  <version>0.2</version>
   <vendor url="http://github.com/mmm444/ijphab">Michal Rydlo</vendor>
 
   <description><![CDATA[
@@ -10,6 +10,11 @@
 
   <change-notes><![CDATA[
   <ul>
+    <li>0.2
+      <ol>
+        <li>Improved handling of short queries. Short search strings are not sent to Phabricator.</li>
+      </ol>
+    </li>
     <li>0.1
       <ol>
         <li>Initial release for IDEA >= 2016.3</li>
