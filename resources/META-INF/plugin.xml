@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.github.mmm444.ijphab</id>
   <name>Phabricator Tasks Provider</name>
-  <version>0.2</version>
+  <version>0.3</version>
   <vendor url="http://github.com/mmm444/ijphab">Michal Rydlo</vendor>
 
   <description><![CDATA[
@@ -10,15 +10,20 @@
 
   <change-notes><![CDATA[
   <ul>
+    <li>0.3
+      <ul>
+        <li>Fixed the plugin.xml to make the plugin work in non-IDEA IDEs.</li>
+      </ul>
+    </li>
     <li>0.2
-      <ol>
+      <ul>
         <li>Improved handling of short queries. Short search strings are not sent to Phabricator.</li>
-      </ol>
+      </ul>
     </li>
     <li>0.1
-      <ol>
+      <ul>
         <li>Initial release for IDEA >= 2016.3</li>
-      </ol>
+      </ul>
     </li>
   </ul>
   ]]>
@@ -27,6 +32,7 @@
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <idea-version since-build="163"/>
 
+  <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.tasks</depends>
 
   <extensions defaultExtensionNs="com.intellij">
