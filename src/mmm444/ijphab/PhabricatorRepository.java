@@ -224,11 +224,20 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
       return;
     }
     try {
-      ProjectResponse res = apiCall("project.query", ProjectResponse.class);
       myProjectCache = new HashMap<>();
-      for (Project project : res.getResult().getData().values()) {
-        myProjectCache.put(project.getPhid(), project);
-      }
+      ProjectResponse res;
+      String after = null;
+      do {
+        Params params = new Params();
+        if (after != null) {
+          params.add("after", after);
+        }
+        res = apiCall("project.search", ProjectResponse.class, params);
+        for (Project project : res.getResult().getData()) {
+          myProjectCache.put(project.getPhid(), project);
+        }
+        after = res.getResult().getCursor().getAfter();
+      } while (after != null);
     }
     catch (IOException | RequestFailedException ignored) {
     }

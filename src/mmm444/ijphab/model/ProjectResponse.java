@@ -1,9 +1,9 @@
 package mmm444.ijphab.model;
 
-import java.util.Map;
+import java.util.List;
 
 /**
- * Response to the {@code project.query} method.
+ * Response to the {@code project.search} method.
  */
 @SuppressWarnings({"CanBeFinal", "unused"})
 public class ProjectResponse extends MethodResponse {
@@ -15,10 +15,15 @@ public class ProjectResponse extends MethodResponse {
 
   @SuppressWarnings("CanBeFinal")
   public static class Result {
-    private Map<String, Project> data;
+    private List<Project> data;
+    private Cursor cursor;
 
-    public Map<String, Project> getData() {
+    public List<Project> getData() {
       return data;
+    }
+
+    public Cursor getCursor() {
+      return cursor;
     }
   }
 }

@@ -4,14 +4,12 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings({"CanBeFinal", "unused"})
 public class Project {
-  private String name;
   private String phid;
-  private String icon;
-  private String color;
+  private Fields fields;
 
   @NotNull
   public String getName() {
-    return name;
+    return fields.name;
   }
 
   @NotNull
@@ -20,10 +18,27 @@ public class Project {
   }
 
   public String getIcon() {
-    return icon;
+    return fields.icon.key;
   }
 
   public String getColor() {
-    return color;
+    return fields.color.key;
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  public static class Fields {
+    private String name;
+    private Icon icon;
+    private Color color;
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  public static class Icon {
+    String key;
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  public static class Color {
+    String key;
   }
 }
