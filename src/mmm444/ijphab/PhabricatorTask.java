@@ -4,7 +4,7 @@ import com.intellij.tasks.Comment;
 import com.intellij.tasks.Task;
 import com.intellij.tasks.TaskRepository;
 import com.intellij.tasks.TaskType;
-import mmm444.ijphab.model.QueryResponse;
+import mmm444.ijphab.model.SearchResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,9 +13,9 @@ import java.util.Date;
 
 public class PhabricatorTask extends Task {
   private final PhabricatorRepository myRepository;
-  private final QueryResponse.TaskData myData;
+  private final SearchResponse.TaskData myData;
 
-  public PhabricatorTask(QueryResponse.TaskData data, PhabricatorRepository repository) {
+  public PhabricatorTask(SearchResponse.TaskData data, PhabricatorRepository repository) {
     this.myData = data;
     this.myRepository = repository;
   }
@@ -29,7 +29,7 @@ public class PhabricatorTask extends Task {
   @NotNull
   @Override
   public String getPresentableId() {
-    return myData.getObjectName();
+    return "T" + myData.getId();
   }
 
   @NotNull
@@ -76,7 +76,7 @@ public class PhabricatorTask extends Task {
 
   @Override
   public boolean isClosed() {
-    return myData.isClosed();
+    return false; // TODO
   }
 
   @Override
@@ -87,7 +87,7 @@ public class PhabricatorTask extends Task {
   @Nullable
   @Override
   public String getIssueUrl() {
-    return myData.getUri();
+    return myRepository.getUrl() + "/T" + myData.getId();
   }
 
   @Nullable

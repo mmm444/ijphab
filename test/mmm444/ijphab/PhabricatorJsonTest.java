@@ -1,15 +1,12 @@
 package mmm444.ijphab;
 
-import mmm444.ijphab.model.QueryResponse;
+import mmm444.ijphab.model.SearchResponse;
 import mmm444.ijphab.model.StatusesResponse;
 import mmm444.ijphab.model.WhoamiResponse;
 import com.intellij.tasks.impl.RequestFailedException;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -31,19 +28,18 @@ public class PhabricatorJsonTest {
 
     @Test
     public void testQueryDeserializetion() {
-        String json = "{\"result\":{\"PHID-TASK-tdlqveicvcavncwigjog\":{\"id\":\"864\",\"phid\":\"PHID-TASK-tdlqveicvcavncwigjog\",\"authorPHID\":\"PHID-USER-zj3eydsvzhl66iuhx5bl\",\"ownerPHID\":\"PHID-USER-zj3eydsvzhl66iuhx5bl\",\"ccPHIDs\":[\"PHID-USER-zj3eydsvzhl66iuhx5bl\"],\"status\":\"open\",\"statusName\":\"Open\",\"isClosed\":false,\"priority\":\"Normal\",\"priorityColor\":\"orange\",\"title\":\"Debug DLL\",\"description\":\"DO!\",\"projectPHIDs\":[\"PHID-PROJ-xyazbl3w7i2sxpmb3lej\"],\"uri\":\"https:\\/\\/example.com\\/T864\",\"auxiliary\":[],\"objectName\":\"T864\",\"dateCreated\":\"1481125974\",\"dateModified\":\"1481125974\",\"dependsOnTaskPHIDs\":[]}},\"error_code\":null,\"error_info\":null}";
-        QueryResponse res = PhabricatorUtil.GSON.fromJson(json, QueryResponse.class);
+        String json = "{\"result\":{\"data\": [{\"id\": 975,\"type\": \"TASK\",\"phid\": \"PHID-TASK-2otcnfe7y2o7ov5liszp\",\"fields\": {\"name\": \"name\",\"description\": {\"raw\": \"desc\"},\"authorPHID\": \"PHID-USER-az3yo324ahh2nfi6uqij\",\"ownerPHID\": \"PHID-USER-mja2zuovx3axw2nkvlbl\",\"status\": {\"value\": \"resolved\",\"name\": \"Resolved\",\"color\": null},\"priority\": {\"value\": 80,\"subpriority\": 0,\"name\": \"High\",\"color\": \"red\"},\"points\": null,\"subtype\": \"default\",\"spacePHID\": null,\"dateCreated\": 1498162624,\"dateModified\": 1498211502,\"policy\": {\"view\": \"users\",\"interact\": \"users\",\"edit\": \"users\"}},\"attachments\": {\"projects\": {\"projectPHIDs\": [\"PHID-PROJ-xyazbl3w7i2sxpmb3lej\",\"PHID-PROJ-2tvii2xte73tvvkmlqqj\"]}}}], \"maps\": {},\"query\": {\"queryKey\": \"all\"},\"cursor\": {\"limit\": 100,\"after\": null,\"before\": null,\"order\": null}},\"error_code\":null,\"error_info\":null}";
+        SearchResponse res = PhabricatorUtil.GSON.fromJson(json, SearchResponse.class);
         res.checkOk();
-        Map<String, QueryResponse.TaskData> data = res.getResult();
+        List<SearchResponse.TaskData> data = res.getResult();
         assertNotNull(data);
         assertEquals(1, data.size());
 
-        QueryResponse.TaskData td = data.values().iterator().next();
-        assertEquals("864", td.getId());
-        assertFalse(td.isClosed());
-        assertEquals(Collections.singletonList("PHID-PROJ-xyazbl3w7i2sxpmb3lej"), td.getProjectPHIDs());
-        assertEquals(new Date(1481125974000L), td.getDateCreated());
-        assertEquals(new Date(1481125974000L), td.getDateModified());
+        SearchResponse.TaskData td = data.iterator().next();
+        assertEquals("975", td.getId());
+        assertEquals(Arrays.asList("PHID-PROJ-xyazbl3w7i2sxpmb3lej", "PHID-PROJ-2tvii2xte73tvvkmlqqj"), td.getProjectPHIDs());
+        assertEquals(new Date(1498162624000L), td.getDateCreated());
+        assertEquals(new Date(1498211502000L), td.getDateModified());
     }
 
     @Test public void testStatusesDeserialization() {

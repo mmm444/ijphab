@@ -83,30 +83,33 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
   @Override
   public PhabricatorTask findTask(@NotNull String id) throws Exception {
     Params params = new Params()
-      .add("ids[0]", id)
+      .add("constraints[ids][0]", id)
+      .add("attachments[projects]", "1")
       .add("limit", "1");
-    QueryResponse res = apiCall("maniphest.query", QueryResponse.class, params);
-    Map<String, QueryResponse.TaskData> data = res.getResult();
-    return !data.isEmpty() ? new PhabricatorTask(data.values().iterator().next(), this) : null;
+    SearchResponse res = apiCall("maniphest.search", SearchResponse.class, params);
+    List<SearchResponse.TaskData> data = res.getResult();
+    return !data.isEmpty() ? new PhabricatorTask(data.iterator().next(), this) : null;
   }
 
   @Override
   public PhabricatorTask[] getIssues(@Nullable String query, int offset, int limit, boolean withClosed) throws Exception {
     Params params = new Params()
-      .add("status", withClosed ? "status-any" : "status-open")
-      .add("limit", String.valueOf(limit))
-      .add("offset", String.valueOf(offset));
+      .add("queryKey", withClosed ? "all" : "open")
+      .add("attachments[projects]", "1")
+      .add("limit", String.valueOf(limit));
+    // TODO:
+    //  .add("offset", String.valueOf(offset));
     if (query != null) {
       if (query.length() >= MIN_PHAB_QUERY_LEN) {
-        params.add("fullText", query);
+        params.add("constraints[query]", query);
       } else {
         return new PhabricatorTask[]{};
       }
     }
 
-    QueryResponse res = apiCall("maniphest.query", QueryResponse.class, params);
+    SearchResponse res = apiCall("maniphest.search", SearchResponse.class, params);
     return ContainerUtil
-      .map2Array(res.getResult().values(), PhabricatorTask.class, t -> new PhabricatorTask(t, this));
+      .map2Array(res.getResult(), PhabricatorTask.class, t -> new PhabricatorTask(t, this));
   }
 
   @NotNull
