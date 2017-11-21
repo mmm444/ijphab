@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.github.mmm444.ijphab</id>
   <name>Phabricator Tasks Provider</name>
-  <version>0.3</version>
+  <version>0.4</version>
   <vendor url="http://github.com/mmm444/ijphab">Michal Rydlo</vendor>
 
   <description><![CDATA[
@@ -10,6 +10,12 @@
 
   <change-notes><![CDATA[
   <ul>
+    <li>0.4
+      <ul>
+        <li>Always load all projects for the icon projects setting completion.</li>
+        <li>Transition to API endpoints that are not deprecated.</li>
+      </ul>
+    </li>
     <li>0.3
       <ul>
         <li>Fixed the plugin.xml to make the plugin work in non-IDEA IDEs.</li>
