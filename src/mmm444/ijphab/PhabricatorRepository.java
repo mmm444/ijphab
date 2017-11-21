@@ -26,6 +26,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Tag("Phabricator")
@@ -33,12 +34,15 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
   private static final int MIN_PHAB_QUERY_LEN = 3;
 
   private static final Pattern PROJECT_NAME_SEP = Pattern.compile("\\s*,\\s*");
+  private static final Pattern TASK_ID = Pattern.compile("T(\\d+)");
 
   private final List<String> myIconProjectPhids = new ArrayList<>();
   @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
   private String myIconProjects = "";
 
   private transient Map<String, Project> myProjectCache = null;
+
+  private transient StatusesResponse myStatusesResponse = null;
 
   @SuppressWarnings("unused")
   public PhabricatorRepository() {
@@ -87,7 +91,7 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
       .add("attachments[projects]", "1")
       .add("limit", "1");
     SearchResponse res = apiCall("maniphest.search", SearchResponse.class, params);
-    List<SearchResponse.TaskData> data = res.getResult();
+    List<SearchResponse.TaskData> data = res.getData();
     return !data.isEmpty() ? new PhabricatorTask(data.iterator().next(), this) : null;
   }
 
@@ -99,8 +103,14 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
       .add("limit", String.valueOf(limit));
     // TODO:
     //  .add("offset", String.valueOf(offset));
+    if (offset > 0) {
+      return new PhabricatorTask[]{};
+    }
     if (query != null) {
-      if (query.length() >= MIN_PHAB_QUERY_LEN) {
+      Matcher m = TASK_ID.matcher(query);
+      if (m.matches()) {
+        params.add("constraints[ids][0]", m.group(1));
+      } else if (query.length() >= MIN_PHAB_QUERY_LEN) {
         params.add("constraints[query]", query);
       } else {
         return new PhabricatorTask[]{};
@@ -109,7 +119,7 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
 
     SearchResponse res = apiCall("maniphest.search", SearchResponse.class, params);
     return ContainerUtil
-      .map2Array(res.getResult(), PhabricatorTask.class, t -> new PhabricatorTask(t, this));
+      .map2Array(res.getData(), PhabricatorTask.class, t -> new PhabricatorTask(t, this));
   }
 
   @NotNull
@@ -155,10 +165,32 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
     };
   }
 
+  private synchronized StatusesResponse getStatusesResponse() throws Exception {
+    if (myStatusesResponse == null) {
+      myStatusesResponse = apiCall("maniphest.status.search", StatusesResponse.class);
+    }
+    return myStatusesResponse;
+  }
+
+  boolean isTaskClosed(String statusValue) {
+    boolean closed = false;
+    try {
+      StatusesResponse res = getStatusesResponse();
+      for (StatusesResponse.Status status : res.getData()) {
+        if (statusValue != null && statusValue.equals(status.getValue())) {
+          closed = status.isClosed();
+          break;
+        }
+      }
+    } catch (Exception ignored) {
+    }
+    return closed;
+  }
+
   @NotNull
   @Override
   public Set<CustomTaskState> getAvailableTaskStates(@NotNull Task task) throws Exception {
-    StatusesResponse res = apiCall("maniphest.querystatuses", StatusesResponse.class);
+    StatusesResponse res = getStatusesResponse();
     String currentState;
     if (task instanceof PhabricatorTask) {
       currentState = ((PhabricatorTask)task).getStatusId();
@@ -170,9 +202,9 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
     List<CustomTaskState> states = new ArrayList<>();
     boolean nextToTop = false;
     // skip current state and keep the one after the skipped the first
-    for (Map.Entry<String, String> entry : res.getResult().getStatusMap().entrySet()) {
-      if (!entry.getKey().equals(currentState)) {
-        CustomTaskState state = new CustomTaskState(entry.getKey(), entry.getValue());
+    for (StatusesResponse.Status status : res.getData()) {
+      if (!status.getValue().equals(currentState)) {
+        CustomTaskState state = new CustomTaskState(status.getValue(), status.getName());
         if (nextToTop) {
           states.add(0, state);
           nextToTop = false;
@@ -191,9 +223,10 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
   @Override
   public void setTaskState(@NotNull Task task, @NotNull CustomTaskState state) throws Exception {
     Params params = new Params()
-      .add("id", task.getId())
-      .add("status", state.getId());
-    apiCall("maniphest.update", MethodResponse.class, params);
+      .add("objectIdentifier", task.getId())
+      .add("transactions[0][type]", "status")
+      .add("transactions[0][value]", state.getId());
+    apiCall("maniphest.edit", MethodResponse.class, params);
   }
 
   synchronized Icon getTaskIcon(@NotNull List<String> taskProjectPhids) {

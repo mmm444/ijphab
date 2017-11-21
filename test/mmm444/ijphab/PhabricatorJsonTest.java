@@ -31,7 +31,7 @@ public class PhabricatorJsonTest {
         String json = "{\"result\":{\"data\": [{\"id\": 975,\"type\": \"TASK\",\"phid\": \"PHID-TASK-2otcnfe7y2o7ov5liszp\",\"fields\": {\"name\": \"name\",\"description\": {\"raw\": \"desc\"},\"authorPHID\": \"PHID-USER-az3yo324ahh2nfi6uqij\",\"ownerPHID\": \"PHID-USER-mja2zuovx3axw2nkvlbl\",\"status\": {\"value\": \"resolved\",\"name\": \"Resolved\",\"color\": null},\"priority\": {\"value\": 80,\"subpriority\": 0,\"name\": \"High\",\"color\": \"red\"},\"points\": null,\"subtype\": \"default\",\"spacePHID\": null,\"dateCreated\": 1498162624,\"dateModified\": 1498211502,\"policy\": {\"view\": \"users\",\"interact\": \"users\",\"edit\": \"users\"}},\"attachments\": {\"projects\": {\"projectPHIDs\": [\"PHID-PROJ-xyazbl3w7i2sxpmb3lej\",\"PHID-PROJ-2tvii2xte73tvvkmlqqj\"]}}}], \"maps\": {},\"query\": {\"queryKey\": \"all\"},\"cursor\": {\"limit\": 100,\"after\": null,\"before\": null,\"order\": null}},\"error_code\":null,\"error_info\":null}";
         SearchResponse res = PhabricatorUtil.GSON.fromJson(json, SearchResponse.class);
         res.checkOk();
-        List<SearchResponse.TaskData> data = res.getResult();
+        List<SearchResponse.TaskData> data = res.getData();
         assertNotNull(data);
         assertEquals(1, data.size());
 
@@ -43,12 +43,11 @@ public class PhabricatorJsonTest {
     }
 
     @Test public void testStatusesDeserialization() {
-        String json = "{\"result\":{\"defaultStatus\":\"open\",\"defaultClosedStatus\":\"resolved\",\"duplicateStatus\":\"duplicate\",\"openStatuses\":[\"open\",\"progress\"],\"closedStatuses\":{\"2\":\"resolved\",\"3\":\"wontfix\",\"4\":\"invalid\",\"5\":\"duplicate\",\"6\":\"spite\"},\"allStatuses\":[\"open\",\"progress\",\"resolved\",\"wontfix\",\"invalid\",\"duplicate\",\"spite\"],\"statusMap\":{\"open\":\"Open\",\"progress\":\"In Progress\",\"resolved\":\"Resolved\",\"wontfix\":\"Wontfix\",\"invalid\":\"Invalid\",\"duplicate\":\"Duplicate\",\"spite\":\"Spite\"}},\"error_code\":null,\"error_info\":null}";
+        String json = "{\"result\":{\"data\": [{\"name\": \"Open\",\"value\": \"open\",\"closed\": false,\"special\": \"default\"},{\"name\": \"In Progress\",\"value\": \"progress\",\"closed\": false},{\"name\": \"Resolved\",\"value\": \"resolved\",\"closed\": true,\"special\": \"closed\"},{\"name\": \"Wontfix\",\"value\": \"wontfix\",\"closed\": true},{\"name\": \"Invalid\",\"value\": \"invalid\",\"closed\": true},{\"name\": \"Duplicate\",\"value\": \"duplicate\",\"closed\": true,\"special\": \"duplicate\"},{\"name\": \"Spite\",\"value\": \"spite\",\"closed\": true}]},\"error_code\":null,\"error_info\":null}";
         StatusesResponse res = PhabricatorUtil.GSON.fromJson(json, StatusesResponse.class);
         res.checkOk();
         for (String st : Arrays.asList("open", "progress", "resolved", "wontfix", "invalid", "duplicate", "spite")) {
-            assertTrue(st, res.getResult().getStatusMap().containsKey(st));
+            assertTrue(st, res.getData().stream().anyMatch(s -> s.getValue().equals(st)));
         }
-        System.out.println(res.getResult().getStatusMap());
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 public class SearchResponse extends MethodResponse {
   private Result result;
 
-  public List<TaskData> getResult() {
+  public List<TaskData> getData() {
     return result.data;
   }
 

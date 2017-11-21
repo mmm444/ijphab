@@ -76,7 +76,7 @@ public class PhabricatorTask extends Task {
 
   @Override
   public boolean isClosed() {
-    return false; // TODO
+    return myRepository.isTaskClosed(myData.getStatus());
   }
 
   @Override
