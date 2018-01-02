@@ -2,6 +2,8 @@ package mmm444.ijphab.model;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 @SuppressWarnings({"CanBeFinal", "unused"})
 public class Project {
   private String phid;
@@ -23,6 +25,22 @@ public class Project {
 
   public String getColor() {
     return fields.color.key;
+  }
+
+  void validate(List<String> errs) {
+    if (phid == null) {
+      errs.add("null phid in a project");
+    }
+    if (fields == null) {
+      errs.add("null fields for project " + phid);
+    } else {
+      if (fields.icon == null) {
+        errs.add("null icon for project " + phid);
+      }
+      if (fields.color == null) {
+        errs.add("null color for project " + phid);
+      }
+    }
   }
 
   @SuppressWarnings("WeakerAccess")

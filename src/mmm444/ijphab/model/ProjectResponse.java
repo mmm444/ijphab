@@ -1,5 +1,8 @@
 package mmm444.ijphab.model;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -11,6 +14,22 @@ public class ProjectResponse extends MethodResponse {
 
   public Result getResult() {
     return result;
+  }
+
+  @Nonnull
+  @Override
+  List<String> validate() {
+    if (result == null) {
+      return Collections.singletonList("null result in the response");
+    }
+    if (result.data == null) {
+      return Collections.singletonList("null result.data in the response");
+    }
+    List<String> errs = new ArrayList<>();
+    for (Project project : result.data) {
+      project.validate(errs);
+    }
+    return errs;
   }
 
   @SuppressWarnings("CanBeFinal")

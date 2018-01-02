@@ -27,7 +27,7 @@ public class PhabricatorJsonTest {
     }
 
     @Test
-    public void testQueryDeserializetion() {
+    public void testQueryDeserialization() {
         String json = "{\"result\":{\"data\": [{\"id\": 975,\"type\": \"TASK\",\"phid\": \"PHID-TASK-2otcnfe7y2o7ov5liszp\",\"fields\": {\"name\": \"name\",\"description\": {\"raw\": \"desc\"},\"authorPHID\": \"PHID-USER-az3yo324ahh2nfi6uqij\",\"ownerPHID\": \"PHID-USER-mja2zuovx3axw2nkvlbl\",\"status\": {\"value\": \"resolved\",\"name\": \"Resolved\",\"color\": null},\"priority\": {\"value\": 80,\"subpriority\": 0,\"name\": \"High\",\"color\": \"red\"},\"points\": null,\"subtype\": \"default\",\"spacePHID\": null,\"dateCreated\": 1498162624,\"dateModified\": 1498211502,\"policy\": {\"view\": \"users\",\"interact\": \"users\",\"edit\": \"users\"}},\"attachments\": {\"projects\": {\"projectPHIDs\": [\"PHID-PROJ-xyazbl3w7i2sxpmb3lej\",\"PHID-PROJ-2tvii2xte73tvvkmlqqj\"]}}}], \"maps\": {},\"query\": {\"queryKey\": \"all\"},\"cursor\": {\"limit\": 100,\"after\": null,\"before\": null,\"order\": null}},\"error_code\":null,\"error_info\":null}";
         SearchResponse res = PhabricatorUtil.GSON.fromJson(json, SearchResponse.class);
         res.checkOk();
@@ -40,6 +40,19 @@ public class PhabricatorJsonTest {
         assertEquals(Arrays.asList("PHID-PROJ-xyazbl3w7i2sxpmb3lej", "PHID-PROJ-2tvii2xte73tvvkmlqqj"), td.getProjectPHIDs());
         assertEquals(new Date(1498162624000L), td.getDateCreated());
         assertEquals(new Date(1498211502000L), td.getDateModified());
+    }
+
+    @Test
+    public void testQueryDeserialization2() {
+        String json = "{\"result\":{\"data\":[{\"id\":1091,\"type\":\"TASK\",\"phid\":\"PHID-TASK-djkeknt7gde5q5nwz5ud\",\"fields\":{\"name\":\"X\",\"description\":null,\"authorPHID\":\"PHID-USER-zj3eydsvzhl66iuhx5bl\",\"ownerPHID\":null,\"status\":{\"value\":\"open\",\"name\":\"Open\",\"color\":null},\"priority\":{\"value\":90,\"subpriority\":0,\"name\":\"NeedsTriage\",\"color\":\"violet\"},\"points\":null,\"subtype\":\"default\",\"spacePHID\":null,\"dateCreated\":1514928881,\"dateModified\":1514928881,\"policy\":{\"view\":\"obj.maniphest.author\",\"interact\":\"obj.maniphest.author\",\"edit\":\"obj.maniphest.author\"}},\"attachments\":{}}]}}";
+        SearchResponse res = PhabricatorUtil.GSON.fromJson(json, SearchResponse.class);
+        res.checkOk();
+        List<SearchResponse.TaskData> data = res.getData();
+        assertNotNull(data);
+        assertEquals(1, data.size());
+
+        SearchResponse.TaskData td = data.iterator().next();
+        assertEquals("", td.getDescription());
     }
 
     @Test public void testStatusesDeserialization() {

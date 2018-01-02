@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.github.mmm444.ijphab</id>
   <name>Phabricator Tasks Provider</name>
-  <version>0.4</version>
+  <version>0.5</version>
   <vendor url="http://github.com/mmm444/ijphab">Michal Rydlo</vendor>
 
   <description><![CDATA[
@@ -10,6 +10,11 @@
 
   <change-notes><![CDATA[
   <ul>
+    <li>0.5
+      <ul>
+        <li>Fixed handling of tasks with null fields</li>
+      </ul>
+    </li>
     <li>0.4
       <ul>
         <li>Always load all projects for the icon projects setting completion.</li>

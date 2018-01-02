@@ -1,5 +1,7 @@
 package mmm444.ijphab.model;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +12,22 @@ public class SearchResponse extends MethodResponse {
 
   public List<TaskData> getData() {
     return result.data;
+  }
+
+  @Nonnull
+  @Override
+  List<String> validate() {
+    if (result == null) {
+      return Collections.singletonList("null result in the response");
+    }
+    if (result.data == null) {
+      return Collections.singletonList("null result.data in the response");
+    }
+    List<String> errs = new ArrayList<>();
+    for (TaskData taskData : result.data) {
+      taskData.validate(errs);
+    }
+    return errs;
   }
 
   public static class Result {
@@ -60,11 +78,13 @@ public class SearchResponse extends MethodResponse {
     }
 
     public String getDescription() {
-      return fields.description.raw;
+      return fields.description == null ? "" : fields.description.raw;
     }
 
     public List<String> getProjectPHIDs() {
-      return attachments.projects.projectPHIDs == null ? Collections.emptyList() : attachments.projects.projectPHIDs;
+
+      return attachments.projects == null || attachments.projects.projectPHIDs == null
+              ? Collections.emptyList() : attachments.projects.projectPHIDs;
     }
 
     public Date getDateCreated() {
@@ -73,6 +93,22 @@ public class SearchResponse extends MethodResponse {
 
     public Date getDateModified() {
       return fields.dateModified;
+    }
+
+    private void validate(List<String> errs) {
+      if (fields == null) {
+        errs.add("null fields for task " + id);
+      } else {
+        if (fields.status == null) {
+          errs.add("null status for task " + id);
+        }
+        if (fields.priority == null) {
+          errs.add("null priority for task" + id);
+        }
+      }
+      if (attachments == null) {
+        errs.add("null attachments for task " + id);
+      }
     }
   }
 
