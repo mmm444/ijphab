@@ -97,10 +97,12 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
 
   @Override
   public PhabricatorTask[] getIssues(@Nullable String query, int offset, int limit, boolean withClosed) throws Exception {
+    // Phabricator will return an error when asked for more than 100 tasks
+    int lim = Math.min(limit, 100);
     Params params = new Params()
       .add("queryKey", withClosed ? "all" : "open")
       .add("attachments[projects]", "1")
-      .add("limit", String.valueOf(limit));
+      .add("limit", String.valueOf(lim));
     // TODO:
     //  .add("offset", String.valueOf(offset));
     if (offset > 0) {
