@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.github.mmm444.ijphab</id>
   <name>Phabricator Tasks Provider</name>
-  <version>0.5</version>
+  <version>0.6</version>
   <vendor url="http://github.com/mmm444/ijphab">Michal Rydlo</vendor>
 
   <description><![CDATA[
@@ -10,32 +10,8 @@
 
   <change-notes><![CDATA[
   <ul>
-    <li>0.5
-      <ul>
-        <li>Fixed handling of tasks with null fields</li>
-      </ul>
-    </li>
-    <li>0.4
-      <ul>
-        <li>Always load all projects for the icon projects setting completion.</li>
-        <li>Transition to API endpoints that are not deprecated.</li>
-      </ul>
-    </li>
-    <li>0.3
-      <ul>
-        <li>Fixed the plugin.xml to make the plugin work in non-IDEA IDEs.</li>
-      </ul>
-    </li>
-    <li>0.2
-      <ul>
-        <li>Improved handling of short queries. Short search strings are not sent to Phabricator.</li>
-      </ul>
-    </li>
-    <li>0.1
-      <ul>
-        <li>Initial release for IDEA >= 2016.3</li>
-      </ul>
-    </li>
+    <li>Fix updating issue state</li>
+    <li>Request at most 100 issues from Phabricator to prevent errors</li>
   </ul>
   ]]>
   </change-notes>
