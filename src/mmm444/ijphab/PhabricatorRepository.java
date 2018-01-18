@@ -226,7 +226,7 @@ public class PhabricatorRepository extends NewBaseRepositoryImpl {
       .add("objectIdentifier", task.getId())
       .add("transactions[0][type]", "status")
       .add("transactions[0][value]", state.getId());
-    apiCall("maniphest.edit", MethodResponse.class, params);
+    apiCall("maniphest.edit", EditResponse.class, params);
   }
 
   synchronized Icon getTaskIcon(@NotNull List<String> taskProjectPhids) {
